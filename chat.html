@@ -6,149 +6,362 @@
     <title>AIethic Chat</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: Arial, sans-serif;
         }
         
         body {
-            background-color: #111;
-            color: white;
+            background-color: #d03231;
+            color: #000;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
         
-        .nav {
+        /* Header */
+        header {
+            padding: 20px;
+        }
+        
+        .description {
+            max-width: 80%;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        
+        /* Navigation */
+        nav ul {
+            list-style: none;
             display: flex;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid #333;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .logo {
-            margin-right: 24px;
-            font-weight: bold;
-            font-size: 20px;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .nav-link {
-            color: white;
+        nav ul li a {
+            color: #000;
             text-decoration: none;
+            border-bottom: 1px solid #000;
+            padding-bottom: 3px;
+            display: inline-block;
             font-size: 14px;
             text-transform: uppercase;
         }
         
-        .chat-container {
+        /* Main Content */
+        main {
             flex: 1;
             display: flex;
             flex-direction: column;
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 20px;
+            padding: 0 20px;
+            justify-content: space-between;
         }
         
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
+        /* Loading indicator and error styles */
+        .loading {
+            font-style: italic;
+            color: rgba(0, 0, 0, 0.6);
+        }
+        
+        .loading:after {
+            content: "...";
+            animation: dots 1.5s infinite;
+            display: inline-block;
+            width: 20px;
+            text-align: left;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+        
+        .error {
+            color: #800000;
+            border-color: #800000;
+        }
+        
+        /* Logo */
+        .logo {
+            font-size: 120px;
+            font-weight: bold;
+            margin-top: auto;
             margin-bottom: 20px;
+        }
+        
+        /* Footer */
+        footer {
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            justify-content: space-between;
+            padding: 20px;
+            font-size: 12px;
         }
         
-        .message {
-            padding: 12px 16px;
-            border-radius: 8px;
-            max-width: 80%;
+        /* Chat Interface */
+        .chat-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #d03231;
+            padding: 20px;
+            transition: transform 0.3s ease;
+            transform: translateY(100%);
+            z-index: 100;
         }
         
-        .user-message {
-            align-self: flex-end;
-            background-color: #2a2a2a;
-        }
-        
-        .ai-message {
-            align-self: flex-start;
-            background-color: #3a3a3a;
+        .chat-container.active {
+            transform: translateY(0);
         }
         
         .chat-input {
-            display: flex;
-            background-color: #2a2a2a;
-            border-radius: 8px;
-            padding: 8px;
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #000;
+            background-color: #d03231;
+            color: #000;
+            font-size: 16px;
+            margin-bottom: 10px;
         }
         
-        .chat-input input {
-            flex: 1;
-            background: none;
-            border: none;
-            outline: none;
-            color: white;
-            padding: 8px;
+        .chat-input::placeholder {
+            color: rgba(0, 0, 0, 0.6);
         }
         
-        .chat-input button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 0 12px;
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #000;
+        }
+        
+        .user-message {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .bot-message {
+            text-align: left;
+        }
+        
+        .search-button {
             cursor: pointer;
+            border: 1px solid #000;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #000;
+            color: #d03231;
+            margin-top: 20px;
+            display: inline-block;
         }
         
-        .coming-soon {
-            text-align: center;
-            padding: 100px 20px;
-            font-size: 24px;
-            color: #999;
+        /* Media Queries for Responsive Design */
+        @media (min-width: 768px) {
+            .description {
+                max-width: 50%;
+                font-size: 20px;
+            }
+            
+            nav ul {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .logo {
+                font-size: 150px;
+            }
+            
+            .chat-container {
+                width: 60%;
+                margin: 0 auto;
+                left: 0;
+                right: 0;
+                border: 2px solid #000;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <div class="nav">
-        <div class="logo">▢</div>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="#" class="nav-link">Blog</a>
-            <a href="https://github.com/your-username/aiethic" class="nav-link">Github</a>
+    <header>
+        <div class="description">
+            Hi there! Feel free to ask anything.
         </div>
-    </div>
+        <nav>
+            <!-- <ul>
+                <li><a href="#">Projects</a></li>
+                <li><a href="#">Studio</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul> -->
+        </nav>
+    </header>
     
-    <div class="chat-container">
-        <div class="coming-soon">
-            <h2>Chat Experience Coming Soon</h2>
-            <p>We're working hard to bring you the AIethic chat experience.</p>
-            <p>Check back shortly!</p>
+    <main>
+        <div class="logo">AIethic</div>
+        <div class="search-button" id="openChat">Ask AIethic</div>
+    </main>
+    
+    <footer>
+        <div>© 2025 AIethic. All rights reserved.</div>
+        <div>Built for a responsible future — blending innovation with integrity..
         </div>
-        
-        <!-- These will be shown later when chat is implemented
-        <div class="chat-messages">
-            <div class="message ai-message">
-                Hi there! I'm AIethic. How can I help you today?
-            </div>
-            <div class="message user-message">
-                Tell me about ethical AI practices!
-            </div>
+    </footer>
+    
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will appear here -->
         </div>
-        <div class="chat-input">
-            <input type="text" placeholder="Type your message...">
-            <button>Send</button>
-        </div>
-        -->
+        <input type="text" class="chat-input" id="chatInput" placeholder="Type your question here..." />
     </div>
     
     <script>
-        // Chat functionality will be implemented here
+        // Chat functionality
+        const openChatButton = document.getElementById('openChat');
+        const chatContainer = document.getElementById('chatContainer');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        
+        // Track conversation history with system message hidden from the user
+        const systemMessage = { role: "system", content: "You are AIethic, an AI assistant focused on providing ethical, helpful information. Keep responses concise and informative." };
+        let conversationHistory = [systemMessage];
+        
+        openChatButton.addEventListener('click', () => {
+            chatContainer.classList.add('active');
+            chatInput.focus();
+            
+            // Only add welcome message if chat is empty
+            if (chatMessages.childElementCount === 0) {
+                addMessage("Hi there! I'm AIethic. How can I help you today?", 'bot-message');
+            }
+        });
+        
+        chatInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                const userMessage = chatInput.value.trim();
+                if (userMessage) {
+                    // Add user message
+                    addMessage(userMessage, 'user-message');
+                    
+                    // Clear input
+                    chatInput.value = '';
+                    
+                    // Add loading indicator
+                    const loadingId = addLoadingIndicator();
+                    
+                    // Call the actual API with fetch
+                    fetchAIResponse(userMessage, loadingId);
+                }
+            }
+        });
+        
+        // Close chat when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!chatContainer.contains(event.target) && event.target !== openChatButton) {
+                chatContainer.classList.remove('active');
+            }
+        });
+        
+        // Function to add a loading indicator while waiting for API response
+        function addLoadingIndicator() {
+            const loadingElement = document.createElement('div');
+            loadingElement.classList.add('message', 'bot-message', 'loading');
+            loadingElement.textContent = "Thinking";
+            loadingElement.id = "loading-" + Date.now();
+            chatMessages.appendChild(loadingElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return loadingElement.id;
+        }
+        
+        // Function to fetch AI response from the API
+        async function fetchAIResponse(userMessage, loadingId) {
+            // Add the user message to conversation history
+            conversationHistory.push({ role: "user", content: userMessage });
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: conversationHistory
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API response was not ok: ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                // Remove loading indicator
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+                
+                // Extract response content from API and clean it
+                let botResponse = data.choices && data.choices[0] ? 
+                    data.choices[0].message.content : 
+                    "Sorry, I couldn't process your request at this time.";
+                
+                // Clean the response to remove repeated system messages
+                botResponse = cleanResponse(botResponse);
+                
+                // Add bot response to UI
+                addMessage(botResponse, 'bot-message');
+                
+                // Add the bot response to conversation history
+                conversationHistory.push({ role: "assistant", content: botResponse });
+                
+            } catch (error) {
+                console.error('Error calling AI API:', error);
+                
+                // Remove loading indicator
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+                
+                // Show error message to user
+                addMessage("I'm sorry, I'm having trouble connecting right now. Please try again later.", 'bot-message error');
+            }
+        }
+        
+        // Clean the response to remove repeated system messages
+        function cleanResponse(text) {
+            // Remove any occurrence of the system message
+            const systemMessageRegex = /You are AIethic, an AI assistant focused on providing ethical, helpful information\. Keep responses concise and informative\./g;
+            let cleaned = text.replace(systemMessageRegex, '');
+            
+            // Remove LaTeX-style boxes and formatting
+            cleaned = cleaned.replace(/\\boxed{(\d+)}/g, '$1');
+            
+            // Trim extra whitespace and handle multiple 2+2=4 instances
+            cleaned = cleaned.replace(/2\+2=4\s+/g, '2+2=4');
+            
+            // Clean up any other repetitions that might appear
+            cleaned = cleaned.replace(/\s{2,}/g, ' ').trim();
+            
+            return cleaned;
+        }
+        
+        function addMessage(text, className) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', className);
+            messageElement.textContent = text;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     </script>
 </body>
 </html>
