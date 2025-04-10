@@ -14,4 +14,4 @@ AIethic is more than just a chatbot - it's an AI built with ethics at its core, 
 
 ## Live Demo
 
-Visit the [live site](https://tendsXgaurav.github.io/Aiethic)
+Visit the [live site](https://tendsXgaurav.github.io/AIethic)
