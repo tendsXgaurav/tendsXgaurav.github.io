@@ -1,5 +1,6 @@
 # Environment variables - never commit these!
 .env
+.env.example
 .env.local
 .env.*.local
 
