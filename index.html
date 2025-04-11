@@ -300,102 +300,9 @@
             align-items: center;
         }
 
-        /* Counter screen styles */
-        #counter-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #0d0d14;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 1s ease;
-            overflow: hidden;
-            color: #ffffff;
-        }
-        
-        .counter-container {
-            position: relative;
-            width: 80%;
-            max-width: 1000px;
-            height: 300px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .counter {
-            font-size: 0;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .digit {
-            display: inline-block;
-            position: relative;
-            width: 200px;
-            height: 260px;
-        }
-        
-        .box {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #333;
-            transition: all 0.3s ease;
-        }
-        
-        .box.orange { background-color: #ff5722; }
-        .box.cyan { background-color: #00bcd4; }
-        .box.purple { background-color: #9c27b0; }
-        .box.red { background-color: #f44336; }
-        
-        .box.icon {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-color: #333;
-        }
-        
-        .icon1 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8-8-3.59 8-8 8zm-1-14h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E"); }
-        .icon2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-7 7h3V5h2v5h3l-4 4-4-4z'/%3E%3C/svg%3E"); }
-        .icon3 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"); }
-        .icon4 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E"); }
-        
-        .dots {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        .dot {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-        }
-
-        .counter-label {
-            margin-top: 16px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #999;
-            font-family: 'Inter', sans-serif;
-        }
-
         /* Portfolio screen styles */
         #portfolio-screen {
-            opacity: 0;
-            transition: opacity 1s ease;
+            opacity: 1;
         }
 
         /* Modern Hero Styles - Inspired by Stripe.dev */
@@ -476,7 +383,7 @@
             transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.3s ease;
             stroke: transparent;
             stroke-width: 4px;
-            transform: translateY(-300px);
+            transform: translateY(0);
             fill: white;
         }
         
@@ -576,15 +483,6 @@
     </style>
 </head>
 <body>
-    <!-- Counter Screen -->
-    <div id="counter-screen">
-        <div class="dots" id="dots"></div>
-        <div class="counter-container">
-            <div class="counter" id="counter"></div>
-        </div>
-        <div class="counter-label">wait! turning on the light ...</div>
-    </div>
-    
     <!-- Portfolio Screen -->
     <div id="portfolio-screen">
         <!-- Navigation -->
@@ -821,171 +719,15 @@
   
     <script>
         // Create dot pattern background
-        const dotsContainer = document.getElementById('dots');
-        const dotCount = 100;
+        const dotBackground = document.getElementById('dot-background');
+        const dotCount = 80;
         
         for (let i = 0; i < dotCount; i++) {
             const dot = document.createElement('div');
             dot.classList.add('dot');
             dot.style.left = `${Math.random() * 100}%`;
             dot.style.top = `${Math.random() * 100}%`;
-            dotsContainer.appendChild(dot);
-        }
-        
-        // Character maps for digit display
-        const digitMaps = {
-            '0': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'orange' },
-                { x: 0, y: 1, h: 5, w: 1, color: 'orange' },
-                { x: 3, y: 1, h: 5, w: 1, color: 'orange' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'orange' },
-            ],
-            '1': [
-                { x: 1, y: 0, w: 1, h: 1, color: 'cyan' },
-                { x: 2, y: 0, h: 7, w: 1, color: 'cyan' },
-                { x: 1, y: 6, w: 3, h: 1, color: 'cyan' },
-            ],
-            '2': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'purple' },
-                { x: 3, y: 1, h: 2, w: 1, color: 'purple' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'purple' },
-                { x: 0, y: 4, h: 2, w: 1, color: 'purple' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'purple' },
-            ],
-            '3': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'orange' },
-                { x: 3, y: 1, h: 2, w: 1, color: 'orange' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'orange' },
-                { x: 3, y: 4, h: 2, w: 1, color: 'orange' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'orange' },
-            ],
-            '4': [
-                { x: 0, y: 0, h: 4, w: 1, color: 'cyan' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'cyan' },
-                { x: 3, y: 0, h: 7, w: 1, color: 'cyan' },
-            ],
-            '5': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'purple' },
-                { x: 0, y: 1, h: 2, w: 1, color: 'purple' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'purple' },
-                { x: 3, y: 4, h: 2, w: 1, color: 'purple' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'purple' },
-            ],
-            '6': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'orange' },
-                { x: 0, y: 1, h: 5, w: 1, color: 'orange' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'orange' },
-                { x: 3, y: 4, h: 2, w: 1, color: 'orange' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'orange' },
-            ],
-            '7': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'cyan' },
-                { x: 3, y: 1, h: 6, w: 1, color: 'cyan' },
-            ],
-            '8': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'purple' },
-                { x: 0, y: 1, h: 2, w: 1, color: 'purple' },
-                { x: 3, y: 1, h: 2, w: 1, color: 'purple' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'purple' },
-                { x: 0, y: 4, h: 2, w: 1, color: 'purple' },
-                { x: 3, y: 4, h: 2, w: 1, color: 'purple' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'purple' },
-            ],
-            '9': [
-                { x: 0, y: 0, w: 4, h: 1, color: 'orange' },
-                { x: 0, y: 1, h: 2, w: 1, color: 'orange' },
-                { x: 3, y: 1, h: 5, w: 1, color: 'orange' },
-                { x: 0, y: 3, w: 4, h: 1, color: 'orange' },
-                { x: 0, y: 6, w: 4, h: 1, color: 'orange' },
-            ]
-        };
-        
-        // Icons to randomly place in the digits
-        const icons = ['icon1', 'icon2', 'icon3', 'icon4'];
-        
-        // Function to create a digit display
-        function createDigit(digit, container) {
-            const digitElement = document.createElement('div');
-            digitElement.classList.add('digit');
-            
-            const map = digitMaps[digit];
-            
-            // Create the boxes according to the digit map
-            map.forEach((box, index) => {
-                const boxElement = document.createElement('div');
-                boxElement.classList.add('box');
-                
-                // Randomly decide if this box should be an icon (20% chance)
-                const isIcon = Math.random() < 0.2;
-                
-                if (isIcon) {
-                    const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-                    boxElement.classList.add('icon', randomIcon);
-                } else {
-                    boxElement.classList.add(box.color);
-                }
-                
-                // Position the box
-                boxElement.style.left = `${box.x * 40}px`;
-                boxElement.style.top = `${box.y * 40}px`;
-                boxElement.style.width = `${box.w * 40}px`;
-                boxElement.style.height = `${box.h * 40}px`;
-                
-                // Apply animation delay
-                boxElement.style.transitionDelay = `${Math.random() * 0.5}s`;
-                
-                digitElement.appendChild(boxElement);
-            });
-            
-            container.appendChild(digitElement);
-            return digitElement;
-        }
-        
-        // Counter animation function
-        function animateCounter(from, to) {
-            const counterElement = document.getElementById('counter');
-            let currentValue = from;
-            let animationInterval;
-            let digits = [];
-            
-            // Initial rendering
-            updateDisplay(currentValue);
-            
-            // Start animation after a short delay
-            setTimeout(() => {
-                animationInterval = setInterval(() => {
-                    currentValue++;
-                    updateDisplay(currentValue);
-                    
-                    if (currentValue >= to) {
-                        clearInterval(animationInterval);
-                        
-                        // When we reach target, transition to portfolio page
-                        setTimeout(() => {
-                            document.getElementById('counter-screen').style.opacity = '0';
-                            document.getElementById('portfolio-screen').style.opacity = '1';
-                            
-                            // Make counter screen non-interactive after fade out
-                            setTimeout(() => {
-                                document.getElementById('counter-screen').style.display = 'none';
-                            }, 1000);
-                        }, 500);
-                    }
-                }, 50); // Speed of counting
-            }, 500);
-            
-            function updateDisplay(value) {
-                // Clear previous digits
-                counterElement.innerHTML = '';
-                digits = [];
-                
-                // Convert number to string and create digits
-                const valueStr = value.toString();
-                for (let i = 0; i < valueStr.length; i++) {
-                    const digit = createDigit(valueStr[i], counterElement);
-                    digits.push(digit);
-                }
-            }
+            dotBackground.appendChild(dot);
         }
         
         // Flower transformation logic 
@@ -1034,26 +776,6 @@
                     this.style.setProperty('--random-color', randomColor);
                 });
             });
-            
-            // Start with random low number between 40-50 to mimic the example
-            const startValue = 47;
-            setTimeout(() => {
-                animateCounter(startValue, 100);
-            }, 800); // Short delay before starting
-            
-            setTimeout(() => {
-                rects.forEach((rect, index) => {
-                    setTimeout(() => {
-                        rect.style.transform = 'translateY(0)';
-                        setTimeout(() => {
-                            rect.style.transform = 'translateY(-10px)';
-                            setTimeout(() => {
-                                rect.style.transform = 'translateY(0)';
-                            }, 150);
-                        }, 800);
-                    }, 80 * index);
-                });
-            }, 1200);
             
             // Add initial animation to footer logo
             const footerRects = document.querySelectorAll('footer .aiethic-rect');
