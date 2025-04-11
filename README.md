@@ -1,32 +1,26 @@
 # AIethic
 
-AIethic is a website for an AI assistant built with ethics at its core, blending innovation with integrity.
+AIethic is a website for an AI assistant built with ethics at its core.
 
-## Features
+## Setup
 
-- Ethical AI chat interface
-- Responsive modern design
-- Pixel-styled UI elements
-- Interactive loading animations
-- Secure API implementation with OpenAI's GPT-4.5-preview
+1. Clone this repository
+2. Copy `.env.example` to `.env` and add your actual OpenRouter API key
+3. Install dependencies (if any)
+4. Run the local development server
 
-## Website
+## Deployment
 
-Visit [aiethic.me](https://aiethic.me) to see the live site.
+This site is automatically deployed to GitHub Pages when changes are pushed to the main branch.
 
-## Development Setup
+## Domain Configuration
 
-1. Clone the repository
-2. Create a `.env` file based on `.env.example`
-3. Install dependencies:
-   ```
-   npm install
-   ```
-4. Start the development server:
-   ```
-   npm run dev
-   ```
+The site is configured to be deployed at `aiethic.me`.
 
-## Environment Configuration
+## Security
 
-Ensure you have set up the following environment variables in your `.env` file:
+This repository follows secure practices:
+- Environment variables for all sensitive information
+- .gitignore configured to prevent committing sensitive files
+- No API keys in the repository
+```
