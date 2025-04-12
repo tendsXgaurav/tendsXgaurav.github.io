@@ -490,7 +490,12 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                const response = await fetch('/api/chat', {
+                // Update API endpoint to use the aiethic.me domain instead of relative path
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? '/api/chat' 
+                    : 'https://aiethic.me/api/chat';
+                    
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -561,7 +566,20 @@
         
         function addMessage(text, className) {
             const messageElement = document.createElement('div');
-            messageElement.classList.add('message', className);
+            
+            // Fix: Split className by space and add each class separately to avoid DOMTokenList.add error
+            if (className.includes(' ')) {
+                const classNames = className.split(' ');
+                messageElement.classList.add('message');
+                classNames.forEach(cls => {
+                    if (cls.trim()) { // Only add non-empty class names
+                        messageElement.classList.add(cls.trim());
+                    }
+                });
+            } else {
+                messageElement.classList.add('message', className);
+            }
+            
             messageElement.textContent = text;
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
