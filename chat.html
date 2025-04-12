@@ -490,13 +490,18 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                // Use the deployed Cloudflare Worker URL (replace with your actual subdomain)
-                const apiUrl = 'https://aiethic-chat-api.workers.dev/chat';
+                // Try different API URL configurations
+                // First attempt with the correctly configured Cloudflare Worker URL
+                const apiUrl = 'https://aiethic-chat-api.workers.dev/api/chat';
                 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        // Add CORS headers for cross-domain requests
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type'
                     },
                     body: JSON.stringify({
                         messages: conversationHistory
