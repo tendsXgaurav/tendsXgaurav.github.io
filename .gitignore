@@ -1,8 +1,8 @@
 # Environment variables - never commit these!
 .env
-.env.example
 .env.local
 .env.*.local
+.env.example
 
 # Sensitive files
 *.pem
@@ -12,10 +12,17 @@
 *.der
 *.pfx
 *.p12
+*.cert
+.ssh/
 
 # Dependency directories
 node_modules/
 /node_modules
+./node_modules
+nodmodule/
+nodmodule
+jspm_packages/
+bower_components/
 
 # Logs
 logs
@@ -30,6 +37,12 @@ yarn-error.log
 # Build files
 /dist
 /build
+/out
+/.next
+/.nuxt
+/coverage
+/.nyc_output
+/.cache
 
 # OS generated files
 .DS_Store
@@ -48,3 +61,47 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+.~lock.*
+*.bak
+.temp/
+.tmp/
+
+# Package manager files
+yarn.lock
+package-lock.json
+npm-debug.log
+.npm
+
+# Compiled output
+*.min.js
+*.min.css
+*.bundle.js
+
+# Local configuration
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+# SSL certificates
+ssl/
+certificates/
