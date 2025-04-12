@@ -490,11 +490,9 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                // Update API endpoint to use the aiethic.me domain instead of relative path
-                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                    ? '/api/chat' 
-                    : 'https://aiethic.me/api/chat';
-                    
+                // Use the deployed Cloudflare Worker URL (replace with your actual subdomain)
+                const apiUrl = 'https://aiethic-chat-api.workers.dev/chat';
+                
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
