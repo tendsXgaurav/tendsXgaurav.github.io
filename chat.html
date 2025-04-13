@@ -490,68 +490,77 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                // Determine API URL based on environment
-                const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:8000'  // Local development 
-                    : 'https://tendsxgauravgithubio-production.up.railway.app';  // Railway custom domain
+                // Determine API URL based on environment with fallback options
+                const hostname = window.location.hostname;
+                let apiBaseUrl, apiEndpoint;
                 
-                // First check if the API is available using the health endpoint
+                if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                    // Local development - try Express server first
+                    apiBaseUrl = 'http://localhost:3000';
+                    apiEndpoint = '/api/chat';
+                } else {
+                    // Production environment - Railway deployment
+                    apiBaseUrl = 'https://tendsxgauravgithubio-production.up.railway.app';
+                    apiEndpoint = '/chat'; // Try direct endpoint first in production
+                }
+                
+                const apiUrl = `${apiBaseUrl}${apiEndpoint}`;
+                console.log(`Sending message to: ${apiUrl}`);
+                
+                // Try the first API endpoint
                 try {
-                    console.log(`Checking API health at: ${apiBaseUrl}/health`);
-                    const healthResponse = await fetch(`${apiBaseUrl}/health`, {
-                        method: 'GET',
+                    console.log(`Attempting to send message to: ${apiUrl}`);
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        signal: AbortSignal.timeout(10000)
+                        body: JSON.stringify({
+                            messages: conversationHistory
+                        }),
+                        // Add timeout to avoid long waits
+                        signal: AbortSignal.timeout(15000)
                     });
                     
-                    if (healthResponse.ok) {
-                        const healthData = await healthResponse.json();
-                        console.log("API health check response:", healthData);
-                        
-                        // Check if the API has the necessary configuration
-                        if (!healthData.huggingface_api_key_configured) {
-                            console.error("Hugging Face API key not configured on the server");
-                            throw new Error("API configuration issue: Hugging Face API key not set");
-                        }
+                    // Debug the response status
+                    console.log(`API response status: ${response.status}`);
+                    
+                    // If we got an OK response, parse the data
+                    if (response.ok) {
+                        responseData = await response.json();
+                        console.log("API response data:", responseData);
                     } else {
-                        console.error(`API health check failed: ${healthResponse.status}`);
-                        throw new Error(`API health check failed with status ${healthResponse.status}`);
+                        const errorText = await response.text();
+                        console.error(`API error response: ${errorText}`);
+                        throw new Error(`API responded with status ${response.status}: ${errorText}`);
                     }
                 } catch (error) {
-                    console.error("Error checking API health:", error);
-                    throw new Error(`Could not connect to the API: ${error.message}`);
-                }
-                
-                // Now proceed with the actual chat request
-                const apiUrl = `${apiBaseUrl}/api/chat`;
-                console.log(`Sending message: "${userMessage}"`);
-                console.log(`Using API URL: ${apiUrl}`);
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messages: conversationHistory
-                    }),
-                    // Add timeout to avoid long waits
-                    signal: AbortSignal.timeout(20000)
-                });
-                
-                // Debug the response status
-                console.log(`Server API response status: ${response.status}`);
-                
-                // If we got an OK response, parse the data
-                if (response.ok) {
-                    responseData = await response.json();
-                    console.log("API response data:", responseData);
-                } else {
-                    const errorText = await response.text();
-                    console.error(`API error response: ${errorText}`);
-                    throw new Error(`API responded with status ${response.status}: ${errorText}`);
+                    console.error(`Error with first endpoint (${apiUrl}):`, error.message);
+                    
+                    // Try the alternative endpoint format if the first one fails
+                    const altEndpoint = apiEndpoint === '/api/chat' ? '/chat' : '/api/chat';
+                    const altApiUrl = `${apiBaseUrl}${altEndpoint}`;
+                    console.log(`Trying alternative endpoint: ${altApiUrl}`);
+                    
+                    const response = await fetch(altApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            messages: conversationHistory
+                        }),
+                        signal: AbortSignal.timeout(15000)
+                    });
+                    
+                    if (response.ok) {
+                        responseData = await response.json();
+                        console.log("Alternative API response data:", responseData);
+                    } else {
+                        const errorText = await response.text();
+                        throw new Error(`Alternative API responded with status ${response.status}: ${errorText}`);
+                    }
                 }
                 
                 // Remove loading indicator

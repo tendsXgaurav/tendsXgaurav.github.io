@@ -17,15 +17,21 @@ app = FastAPI(title="AIethic Chat API")
 HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
 HUGGINGFACE_SPACE_URL = os.getenv("HUGGINGFACE_SPACE_URL", "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1")
 
-# Add CORS middleware to allow requests from your frontend domain
+# Add CORS middleware to allow requests from your frontend domain - allow all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://aiethic.me", "https://www.aiethic.me", "http://localhost:3000", "http://127.0.0.1:5000", 
-                   "https://tendsxgaurav.github.io", "https://aiethic-production.up.railway.app", "*"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for maximum compatibility
+    allow_credentials=False,  # Set to False to avoid credentials issues
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Log environment and configuration on startup
+@app.on_event("startup")
+async def startup_event():
+    print(f"Starting AIethic API with the following configuration:")
+    print(f"HUGGINGFACE_API_KEY configured: {bool(HUGGINGFACE_API_KEY)}")
+    print(f"HUGGINGFACE_SPACE_URL: {HUGGINGFACE_SPACE_URL}")
 
 # Define request and response models
 class Message(BaseModel):
@@ -69,28 +75,17 @@ def format_messages_for_mistral(messages):
     
     return prompt
 
-@app.get("/")
-async def read_root():
-    return {"status": "ok", "message": "AIethic Chat API is running"}
-
-@app.get("/health")
-async def health_check():
-    return {
-        "status": "ok", 
-        "message": "AIethic API is running",
-        "huggingface_api_key_configured": bool(HUGGINGFACE_API_KEY),
-        "huggingface_space_url_configured": bool(HUGGINGFACE_SPACE_URL),
-        "timestamp": datetime.datetime.now().isoformat()
-    }
-
-@app.post("/api/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+# Chat logic function to avoid code duplication
+async def process_chat_request(request: ChatRequest):
     # Check if API key is configured
     if not HUGGINGFACE_API_KEY:
         raise HTTPException(status_code=500, detail="Hugging Face API key is not configured")
     
     # Format messages for Mistral model
     formatted_prompt = format_messages_for_mistral(request.messages)
+    
+    # Debug log
+    print(f"Processing request with formatted prompt length: {len(formatted_prompt)} chars")
     
     # Create HTTP client with timeout
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -113,11 +108,16 @@ async def chat(request: ChatRequest):
                 }
             )
             
+            # Debug log
+            print(f"Hugging Face API response status: {response.status_code}")
+            
             if response.status_code != 200:
                 # If the request fails, raise an HTTP exception with the error details
+                error_text = await response.text()
+                print(f"Hugging Face API error: {error_text}")
                 raise HTTPException(
                     status_code=response.status_code, 
-                    detail=f"Hugging Face API error: {response.text}"
+                    detail=f"Hugging Face API error: {error_text}"
                 )
             
             # Parse the response from Hugging Face
@@ -137,6 +137,9 @@ async def chat(request: ChatRequest):
             generated_text = generated_text.replace("[/INST]", "").strip()
             generated_text = generated_text.replace("<s>", "").replace("</s>", "").strip()
             
+            # Debug log
+            print(f"Generated response of length: {len(generated_text)} chars")
+            
             # Format the response to match OpenAI format for compatibility with the frontend
             return ChatResponse(
                 choices=[
@@ -151,12 +154,38 @@ async def chat(request: ChatRequest):
             
         except httpx.RequestError as exc:
             # Handle request errors (connection issues, timeouts, etc.)
+            error_message = f"An error occurred while calling the Hugging Face API: {str(exc)}"
+            print(error_message)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while calling the Hugging Face API: {str(exc)}"
+                detail=error_message
             )
+
+@app.get("/")
+async def read_root():
+    return {"status": "ok", "message": "AIethic Chat API is running"}
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "ok", 
+        "message": "AIethic API is running",
+        "huggingface_api_key_configured": bool(HUGGINGFACE_API_KEY),
+        "huggingface_space_url_configured": bool(HUGGINGFACE_SPACE_URL),
+        "timestamp": datetime.datetime.now().isoformat()
+    }
+
+# Support both endpoint patterns
+@app.post("/api/chat", response_model=ChatResponse)
+async def chat_api(request: ChatRequest):
+    return await process_chat_request(request)
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat_direct(request: ChatRequest):
+    return await process_chat_request(request)
 
 if __name__ == "__main__":
     import uvicorn
     # Run the server when the script is executed directly
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
