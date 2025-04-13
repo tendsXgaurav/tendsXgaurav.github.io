@@ -1,13 +1,21 @@
-// Direct test script for Mistral-7B integration (no env variables)
+// Direct test script for Mistral-7B integration using environment variables
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 async function testMistralAPI() {
   try {
     console.log("Testing Hugging Face Inference API with Mistral-7B model...");
     
-    // Directly use the API endpoint that was confirmed working
+    // Get API key from environment variables
     const endpoint = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1";
-    const apiKey = "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";
+    const apiKey = process.env.HUGGINGFACE_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error("HUGGINGFACE_API_KEY environment variable is not set. Please create a .env file with your API key.");
+    }
     
     console.log(`Using endpoint: ${endpoint}`);
     console.log("Sending test message to Mistral-7B model...");
@@ -61,7 +69,7 @@ async function testMistralAPI() {
   } catch (error) {
     console.error("\n❌ Error testing Mistral-7B API:", error.message);
     console.log("\nTroubleshooting steps:");
-    console.log("1. Check that your Hugging Face API key is correct");
+    console.log("1. Check that your HUGGINGFACE_API_KEY environment variable is set correctly in your .env file");
     console.log("2. Make sure your Hugging Face token has the necessary permissions (read)");
     console.log("3. Check your internet connection");
   }
