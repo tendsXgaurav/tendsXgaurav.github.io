@@ -490,9 +490,12 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                // For GitHub Pages deployment where frontend and backend are separate
-                // Use our backend API which handles the Hugging Face API key 
-                const apiUrl = '/api/chat';  // Route to our backend API
+                // Determine API URL based on environment
+                // Use absolute URL in production, relative URL in development
+                const isProduction = window.location.hostname !== 'localhost';
+                const apiUrl = isProduction 
+                    ? 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1'  // Replace with your deployed backend URL
+                    : '/api/chat';
                 
                 // Debug information - log the message being sent
                 console.log(`Sending message: "${userMessage}"`);
