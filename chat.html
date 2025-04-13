@@ -309,12 +309,12 @@
     <div class="dot-background" id="dot-background"></div>
     
     <header>
-        <div class="logo">▢</div>
+        <div class="logo">AIethic</div>
         <div class="nav-links">
             <a href="index.html" class="nav-link">Home</a>
             <a href="chat.html" class="nav-link">Chat</a>
-            <a href="#" class="nav-link">Blog</a>
-            <a href="https://github.com/your-username/aiethic" class="nav-link">Github</a>
+            <a href="#" class="nav-link">Updates</a>
+            <a href="https://github.com/tendsxgaurav/tendsxgaurav.github.io" class="nav-link">Github</a>
         </div>
     </header>
     
@@ -375,12 +375,12 @@
         </div>
 
         <div class="description">
-            Introducing the only AI built with ethics at its core.
-            Feel free to ask anything and get thoughtful, responsible answers.
+            Meet AIethic — an AI built with ethics at its core.
+            Experience thoughtful, responsible AI conversations.
         </div>
         
         <div class="search-button" id="openChat">
-            Ask AIethic <span class="icon">↗</span>
+            Start Chatting <span class="icon">↗</span>
         </div>
     </main>
     
@@ -416,7 +416,7 @@
         const chatMessages = document.getElementById('chatMessages');
         
         // Track conversation history with system message hidden from the user
-        const systemMessage = { role: "system", content: "You are AIethic, an AI assistant focused on providing ethical, helpful information. Keep responses concise and informative." };
+        const systemMessage = { role: "system", content: "You are AIethic, an AI built with ethics at its core. Your name is AIethic. When asked who you are, what you are, who made you, or about your identity, always respond that you are AIethic, an AI assistant built with ethics at its core. Never identify as any other AI model. You're here to help in learning and creating things. You're created by Gaurav." };
         let conversationHistory = [systemMessage];
         
         // Define an array of vibrant colors for the hover effect
@@ -460,7 +460,7 @@
                     // Add loading indicator
                     const loadingId = addLoadingIndicator();
                     
-                    // Call the actual API with fetch
+                    // Call the API with fetch
                     fetchAIResponse(userMessage, loadingId);
                 }
             }
@@ -490,18 +490,13 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                // Try different API URL configurations
-                // First attempt with the correctly configured Cloudflare Worker URL
-                const apiUrl = 'https://aiethic-chat-api.workers.dev/api/chat';
+                // Try API endpoint
+                const apiUrl = '/api/chat';
                 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        // Add CORS headers for cross-domain requests
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                        'Access-Control-Allow-Headers': 'Content-Type'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         messages: conversationHistory
@@ -509,7 +504,8 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('API response was not ok: ' + response.status);
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${errorData.error?.message || response.statusText}`);
                 }
                 
                 const data = await response.json();
@@ -530,7 +526,7 @@
                     botResponse = "I'm having trouble processing your request. Please try again later.";
                 }
                 
-                // Clean the response to remove repeated system messages
+                // Clean the response to remove any artifacts
                 botResponse = cleanResponse(botResponse);
                 
                 // Add bot response to UI
@@ -553,29 +549,23 @@
             }
         }
         
-        // Clean the response to remove repeated system messages
+        // Clean the response to remove any artifacts
         function cleanResponse(text) {
-            const systemMessageRegex = /You are AIethic, an AI assistant focused on providing ethical, helpful information\. Keep responses concise and informative\./g;
-            let cleaned = text.replace(systemMessageRegex, '');
-            
-            cleaned = cleaned.replace(/\\boxed{(\d+)}/g, '$1');
-            
-            cleaned = cleaned.replace(/2\+2=4\s+/g, '2+2=4');
-            
-            cleaned = cleaned.replace(/\s{2,}/g, ' ').trim();
-            
-            return cleaned;
+            // Remove prompt formatting artifacts if they appear in the response
+            return text.replace(/\[INST\]|\[\/INST\]|<s>|<\/s>/g, '')
+                       .replace(/\s{2,}/g, ' ')
+                       .trim();
         }
         
         function addMessage(text, className) {
             const messageElement = document.createElement('div');
             
-            // Fix: Split className by space and add each class separately to avoid DOMTokenList.add error
+            // Fix: Split className by space and add each class separately
             if (className.includes(' ')) {
                 const classNames = className.split(' ');
                 messageElement.classList.add('message');
                 classNames.forEach(cls => {
-                    if (cls.trim()) { // Only add non-empty class names
+                    if (cls.trim()) {
                         messageElement.classList.add(cls.trim());
                     }
                 });

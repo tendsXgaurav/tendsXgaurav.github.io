@@ -1,15 +1,23 @@
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
+import dotenv from 'dotenv';
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chatRouter from './api/chat.js';
+
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Get dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
 // Routes
-app.use('/api/chat', require('./api/chat'));
+app.use('/api/chat', chatRouter);
 
 // Serve the HTML files
 app.get('/', (req, res) => {
