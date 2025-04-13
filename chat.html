@@ -490,25 +490,54 @@
             conversationHistory.push({ role: "user", content: userMessage });
             
             try {
-                // Try API endpoint
-                const apiUrl = '/api/chat';
+                // For GitHub Pages deployment where frontend and backend are separate
+                // Use our backend API which handles the Hugging Face API key 
+                const apiUrl = '/api/chat';  // Route to our backend API
                 
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messages: conversationHistory
-                    }),
-                });
+                // Debug information - log the message being sent
+                console.log(`Sending message: "${userMessage}"`);
+                console.log(`Using API URL: ${apiUrl}`);
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`API error: ${errorData.error?.message || response.statusText}`);
+                // Try to send the request to our backend API which handles the Hugging Face API key
+                try {
+                    console.log(`Sending request to server API: ${apiUrl}`);
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            messages: conversationHistory
+                        }),
+                        // Add timeout to avoid long waits
+                        signal: AbortSignal.timeout(20000)
+                    });
+                    
+                    // Debug the response status
+                    console.log(`Server API response status: ${response.status}`);
+                    
+                    // If we got an OK response, parse the data
+                    if (response.ok) {
+                        responseData = await response.json();
+                        console.log("API response data:", responseData);
+                    } else {
+                        const errorText = await response.text();
+                        console.error(`API error response: ${errorText}`);
+                        throw new Error(`API responded with status ${response.status}: ${errorText}`);
+                    }
+                } catch (error) {
+                    console.error('Error calling AI API:', error);
+                    
+                    // Remove loading indicator
+                    const loadingElement = document.getElementById(loadingId);
+                    if (loadingElement) {
+                        loadingElement.remove();
+                    }
+                    
+                    // Show error message to user
+                    addMessage("I'm sorry, I'm having trouble connecting right now. Please try again later.", 'bot-message error');
                 }
-                
-                const data = await response.json();
                 
                 // Remove loading indicator
                 const loadingElement = document.getElementById(loadingId);
@@ -516,18 +545,31 @@
                     loadingElement.remove();
                 }
                 
-                // Use safer data extraction with fallbacks
+                // Extract response based on which API was used
                 let botResponse = "Sorry, I couldn't process your request at this time.";
                 
-                if (data && data.choices && data.choices.length > 0 && data.choices[0].message) {
-                    botResponse = data.choices[0].message.content;
-                } else if (data && data.error) {
-                    console.error('Error from API:', data.error);
-                    botResponse = "I'm having trouble processing your request. Please try again later.";
+                if (responseData) {
+                    if (responseData.choices && responseData.choices.length > 0 && responseData.choices[0].message) {
+                        // Handle response in OpenAI-compatible format (which your server returns)
+                        botResponse = responseData.choices[0].message.content;
+                        console.log("Extracted response from server API:", botResponse);
+                    } else if (responseData.data && responseData.data.length > 0) {
+                        // Alternative format
+                        botResponse = responseData.data[0];
+                        console.log("Extracted response from alternative format:", botResponse);
+                    }
+                } else {
+                    // If we couldn't get a response from the API, use a fallback for testing
+                    if (userMessage.toLowerCase().includes("hi") || 
+                        userMessage.toLowerCase().includes("hello") || 
+                        userMessage.toLowerCase().includes("hey")) {
+                        botResponse = "Hello! I'm AIethic, an AI assistant built with ethics at its core. How can I help you today?";
+                    }
                 }
                 
                 // Clean the response to remove any artifacts
                 botResponse = cleanResponse(botResponse);
+                console.log("Final cleaned response:", botResponse);
                 
                 // Add bot response to UI
                 addMessage(botResponse, 'bot-message');

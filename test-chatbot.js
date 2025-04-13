@@ -3,7 +3,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 require('dotenv').config();
 
 // Test message to send to the chatbot
-const testMessage = "Hello, I'm testing if the Mistral-7B integration is working. Can you respond with a short greeting?";
+const testMessage = "Hello, I'm testing can you respond with a short greeting?";
 
 // Simple function to test the chat API
 async function testChatbot() {
