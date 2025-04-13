@@ -105,3 +105,4 @@ pids
 # SSL certificates
 ssl/
 certificates/
+node_modules/
